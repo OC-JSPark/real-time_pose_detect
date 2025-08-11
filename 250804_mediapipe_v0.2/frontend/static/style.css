@@ -1,0 +1,24 @@
+body {
+    font-family: sans-serif;
+    text-align: center;
+    background-color: #f0f0f0;
+  }
+  
+  video, canvas {
+    width: 640px;
+    height: 480px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+  }
+  
+  #timer {
+    font-size: 2em;
+    margin: 20px;
+  }
+  
+  #result {
+    font-size: 2em;
+    color: green;
+    font-weight: bold;
+  }
+  

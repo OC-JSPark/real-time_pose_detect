@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>MediaPipe 테스트</title>
+  
+  <!-- MediaPipe 라이브러리 로딩 -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+  
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+    .success { background-color: #d4edda; border-color: #c3e6cb; }
+    .error { background-color: #f8d7da; border-color: #f5c6cb; }
+    video, canvas { border: 1px solid #ccc; margin: 10px; }
+  </style>
+</head>
+<body>
+  <h1>MediaPipe 라이브러리 테스트</h1>
+  
+  <div id="library-test" class="test-section">
+    <h3>라이브러리 로딩 테스트</h3>
+    <div id="library-status"></div>
+  </div>
+  
+  <div id="camera-test" class="test-section">
+    <h3>카메라 테스트</h3>
+    <video id="test-video" autoplay playsinline muted width="320" height="240"></video>
+    <canvas id="test-canvas" width="320" height="240"></canvas>
+    <button onclick="testCamera()">카메라 테스트</button>
+  </div>
+  
+  <div id="pose-test" class="test-section">
+    <h3>Pose 테스트</h3>
+    <div id="pose-status"></div>
+    <button onclick="testPose()">Pose 테스트</button>
+  </div>
+  
+  <script>
+    // 라이브러리 로딩 확인
+    function checkLibraries() {
+      const status = document.getElementById('library-status');
+      const libraries = [
+        { name: 'Camera', obj: typeof Camera },
+        { name: 'Pose', obj: typeof Pose },
+        { name: 'drawConnectors', obj: typeof drawConnectors },
+        { name: 'drawLandmarks', obj: typeof drawLandmarks }
+      ];
+      
+      let html = '<ul>';
+      libraries.forEach(lib => {
+        const isLoaded = lib.obj !== 'undefined';
+        html += `<li style="color: ${isLoaded ? 'green' : 'red'}">${lib.name}: ${isLoaded ? '✅ 로드됨' : '❌ 로드 안됨'}</li>`;
+      });
+      html += '</ul>';
+      
+      status.innerHTML = html;
+    }
+    
+    // 카메라 테스트
+    async function testCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const video = document.getElementById('test-video');
+        video.srcObject = stream;
+        
+        document.getElementById('camera-test').className = 'test-section success';
+        document.getElementById('camera-test').innerHTML += '<p>✅ 카메라 연결 성공!</p>';
+      } catch (error) {
+        document.getElementById('camera-test').className = 'test-section error';
+        document.getElementById('camera-test').innerHTML += `<p>❌ 카메라 연결 실패: ${error.message}</p>`;
+      }
+    }
+    
+    // Pose 테스트
+    async function testPose() {
+      const status = document.getElementById('pose-status');
+      
+      if (typeof Pose === 'undefined') {
+        status.innerHTML = '<p style="color: red;">❌ Pose 라이브러리가 로드되지 않았습니다.</p>';
+        return;
+      }
+      
+      try {
+        const pose = new Pose({
+          locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
+        });
+        
+        pose.setOptions({
+          modelComplexity: 1,
+          smoothLandmarks: true,
+          enableSegmentation: false,
+          minDetectionConfidence: 0.5,
+          minTrackingConfidence: 0.5
+        });
+        
+        status.innerHTML = '<p style="color: green;">✅ Pose 초기화 성공!</p>';
+      } catch (error) {
+        status.innerHTML = `<p style="color: red;">❌ Pose 초기화 실패: ${error.message}</p>`;
+      }
+    }
+    
+    // 페이지 로드 시 라이브러리 확인
+    window.addEventListener('load', () => {
+      setTimeout(checkLibraries, 1000);
+    });
+  </script>
+</body>
+</html> 

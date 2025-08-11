@@ -1,0 +1,88 @@
+<!-- 
+[index_001.html에서 필요 업데이트] 
+웹캠 화면이 왼쪽에만 출력되고 있음
+
+오른쪽에 Mediapipe 기반 pose 랜드마크를 실시간으로 출력하고 싶음
+
+전체 동작은 브라우저(JavaScript) 상에서 처리되는 것이 목적 
+
+[작동설명]
+왼쪽 <video>: 실시간 원본 웹캠 영상
+
+오른쪽 <canvas>: Mediapipe에서 처리한 pose 결과가 실시간으로 그려짐
+
+camera_utils 를 통해 Mediapipe가 onFrame마다 자동으로 프레임 처리
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mediapipe 실시간 Pose 테스트</title>
+  <style>
+    #container {
+      display: flex;
+      gap: 20px;
+    }
+    video, canvas {
+      border: 1px solid #ccc;
+      width: 480px;
+      height: 360px;
+    }
+  </style>
+</head>
+<body>
+  <h1>실시간 Pose 인식</h1>
+  <div id="container">
+    <video id="video" autoplay playsinline muted></video>
+    <canvas id="canvas"></canvas>
+  </div>
+
+  <!-- Mediapipe -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils"></script>
+
+  <script>
+    const videoElement = document.getElementById('video');
+    const canvasElement = document.getElementById('canvas');
+    const canvasCtx = canvasElement.getContext('2d');
+
+    // Mediapipe Pose 초기화
+    const pose = new Pose.Pose({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
+    });
+
+    pose.setOptions({
+      modelComplexity: 1,
+      smoothLandmarks: true,
+      enableSegmentation: false,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5
+    });
+
+    pose.onResults((results) => {
+      canvasCtx.save();
+      canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+      canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+      if (results.poseLandmarks) {
+        // 랜드마크 시각화
+        drawConnectors(canvasCtx, results.poseLandmarks, Pose.POSE_CONNECTIONS, { color: '#00FF00', lineWidth: 4 });
+        drawLandmarks(canvasCtx, results.poseLandmarks, { color: '#FF0000', lineWidth: 2 });
+      }
+      canvasCtx.restore();
+    });
+
+    // 카메라 연결
+    const camera = new Camera.Camera(videoElement, {
+      onFrame: async () => {
+        await pose.send({ image: videoElement });
+      },
+      width: 480,
+      height: 360
+    });
+
+    camera.start();
+  </script>
+</body>
+</html>

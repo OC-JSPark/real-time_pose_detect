@@ -1,0 +1,30 @@
+<!-- script.js에 따로 넣기 -->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Mediapipe 실시간 게임</title>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose"></script> -->
+  
+  <!-- Mediapipe 라이브러리 로딩 순서 반드시 지켜야 함 -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5/pose.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils"></script>
+  <!-- 사용자 스크립트는 마지막에, defer 옵션으로 로드 -->
+  <script defer src="/static/script.js"></script>
+  <style>
+    #container { display: flex; gap: 10px; }
+    video, canvas { border: 1px solid #aaa; width: 480px; height: 360px; }
+    #status { font-size: 24px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h2>벽 통과 게임</h2>
+  <div id="container">
+    <video id="video" autoplay playsinline muted></video>
+    <canvas id="canvas"></canvas>
+  </div>
+  <div id="status">⏱️ 준비 중...</div>
+</body>
+</html>

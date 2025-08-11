@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>벽 통과 게임</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <h1>🧍 벽 통과 게임</h1>
+  <video id="video" autoplay playsinline></video>
+  <canvas id="canvas"></canvas>
+  <div id="timer">5</div>
+  <div id="result"></div>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const resultDiv = document.getElementById('result');
+    const timerDiv = document.getElementById('timer');
+
+    // navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+    //   video.srcObject = stream;
+    // });
+
+    navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+      const video = document.getElementById("video");
+      video.srcObject = stream;
+      console.log("✅ 카메라 연결 성공");
+      })
+      .catch(err => {
+        console.error("❌ 카메라 연결 실패:", err);
+        alert("카메라 접근이 차단되었습니다. 브라우저 권한을 확인해주세요.");
+      });
+
+    function captureAndSend() {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0);
+
+      canvas.toBlob(blob => {
+        const formData = new FormData();
+        formData.append("image", blob, "frame.jpg");
+
+        fetch("/pose/process", {
+          method: "POST",
+          body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+          resultDiv.textContent = data.result.toUpperCase();
+        });
+      }, 'image/jpeg');
+    }
+
+    function startTimer() {
+      let count = 5;
+      timerDiv.textContent = count;
+      resultDiv.textContent = '';
+      const interval = setInterval(() => {
+        count--;
+        timerDiv.textContent = count;
+        if (count === 0) {
+          clearInterval(interval);
+          captureAndSend();
+        }
+      }, 1000);
+    }
+
+    window.onload = startTimer;
+  </script>
+</body>
+</html>

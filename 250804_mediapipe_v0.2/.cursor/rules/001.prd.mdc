@@ -1,0 +1,25 @@
+---
+description: "Mediapipe 기반 벽통과 게임 웹앱"
+globs:
+alwaysApply: false
+---
+
+
+# tasks:
+  - name: "프로젝트 구조 생성"
+    description: "FastAPI backend, static/frontend 구조 포함"
+
+  - name: "FastAPI backend 구현"
+    description: "POST /pose/match endpoint 구현, keypoints 비교, pass/fail 반환"
+
+  - name: "Frontend 구성"
+    description: "HTML + JS + CSS: 웹캠 영상, Mediapipe keypoint, 벽 이미지, 5초 타이머, 결과 출력"
+
+  - name: "Mediapipe 연동"
+    description: "JS에서 Mediapipe Pose 연동하여 실시간 keypoints 추출"
+
+  - name: "Frontend <-> Backend 통신"
+    description: "JS에서 fetch로 keypoints를 /pose/match로 보내고 결과 처리"
+
+  - name: "타이머 구현"
+    description: "5초 카운트다운, 타이머 종료 시 keypoints 전송 및 결과 처리"
